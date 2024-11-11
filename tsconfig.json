@@ -4,6 +4,7 @@
     "typeRoots": ["node_modules/@types", "src/types"],
     "types": ["jest"],
     "baseUrl": "./",
+    "moduleResolution": "Node",
     "paths": {
       "@assets/*": ["src/assets/*"],
       "@features/*": ["src/features/*"],
