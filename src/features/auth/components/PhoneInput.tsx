@@ -1,6 +1,8 @@
 import { View, Text, Pressable, TextInput } from 'react-native';
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { createStyleSheet, useStyles } from 'react-native-unistyles';
+import CountryPicker, { Country } from 'react-native-country-picker-modal';
+
 import { Colors, shadowStyle } from '@unistyles/theme';
 import CustomText from '@components/CustomText';
 import Icon from '@components/Icon';
@@ -8,6 +10,8 @@ import Icon from '@components/Icon';
 type PhoneInputProps = {
   value: string;
   onChangeText: (value: string) => void;
+  selectedCountry: Country;
+  onChangeCountry: (country: Country) => void;
   onFocus?: (event: any) => void;
   onBlur?: (event: any) => void;
 };
@@ -15,15 +19,32 @@ type PhoneInputProps = {
 const PhoneInput: FC<PhoneInputProps> = ({
   onChangeText,
   value,
+  onChangeCountry,
+  selectedCountry,
   onBlur,
   onFocus,
 }) => {
+  const [countryPickerVisible, setCountryPickerVisible] =
+    useState<boolean>(false);
+
   const { styles } = useStyles(phoneInputStyles);
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.countryPickerContainer}>
-        <CustomText variant="h2" fontSize={18}>🇮🇳</CustomText>
+      <Pressable
+        onPress={() => setCountryPickerVisible(true)}
+        style={styles.countryPickerContainer}
+      >
+        <CountryPicker
+          countryCode={selectedCountry?.cca2 ?? 'IN'}
+          visible={countryPickerVisible}
+          withCallingCode
+          withFlagButton
+          withFilter
+          withModal
+          onClose={() => setCountryPickerVisible(false)}
+          onSelect={onChangeCountry}
+        />
         <Icon
           iconFamily="Ionicons"
           name="caret-down-sharp"
@@ -32,7 +53,9 @@ const PhoneInput: FC<PhoneInputProps> = ({
         />
       </Pressable>
       <View style={styles.phoneInputContainer}>
-        <CustomText fontFamily="Okra-Bold">+91</CustomText>
+        <CustomText fontFamily="Okra-Bold">
+          +{selectedCountry?.callingCode[0] ?? 91}
+        </CustomText>
         <TextInput
           placeholder="Enter mobile number"
           value={value}
@@ -59,18 +82,17 @@ const phoneInputStyles = createStyleSheet(({ colors, fonts, device }) => ({
   },
   countryPickerContainer: {
     ...shadowStyle,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     padding: 8,
     height: 45,
     flexDirection: 'row',
-    gap: 5,
     width: '18%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   phoneInputContainer: {
     ...shadowStyle,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     width: '78%',
     paddingHorizontal: 8,
     flexDirection: 'row',
