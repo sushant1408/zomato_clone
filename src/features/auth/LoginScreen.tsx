@@ -5,23 +5,43 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
-import React, { FC, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { useStyles } from 'react-native-unistyles';
-import Animated from 'react-native-reanimated';
 
 import CustomText from '@components/CustomText';
+import { resetAndNavigate } from '@navigation/utils';
+import useKeyboardOffsetHeight from '@utils/useKeyboardOffsetHeight';
 import { loginStyles } from './styles';
 import BreakerText from './components/BreakerText';
 import PhoneInput from './components/PhoneInput';
 import SocialLogin from './components/SocialLogin';
-import { resetAndNavigate } from '@navigation/utils';
 
 const LoginScreen: FC = () => {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  const keyboardOffsetHeight = useKeyboardOffsetHeight();
+
   const [phone, setPhone] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
   const { styles } = useStyles(loginStyles);
+
+  useEffect(() => {
+    if (keyboardOffsetHeight === 0) {
+      Animated.timing(animatedValue, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(animatedValue, {
+        toValue: -keyboardOffsetHeight * 0.25,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [keyboardOffsetHeight]);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -42,6 +62,9 @@ const LoginScreen: FC = () => {
         bounces={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
+        style={{
+          transform: [{ translateY: animatedValue }],
+        }}
         contentContainerStyle={styles.bottomContainer}
       >
         <CustomText variant="h2" fontFamily="Okra-Bold" style={styles.title}>
